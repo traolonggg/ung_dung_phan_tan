@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RQLite Cluster Health</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cluster-status {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .cluster-status.HEALTHY {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .cluster-status.DEGRADED {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .cluster-status.CRITICAL {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .cluster-status.DOWN {
+            background-color: #f1f1f1;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+
+        .nodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .node-card {
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+
+        .node-card.OK {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .node-card.ERROR {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .node-card.OFFLINE {
+            background-color: #f1f1f1;
+            border-color: #dee2e6;
+        }
+
+        .node-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .node-info {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .summary {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .role-leader {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .role-follower {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .uptime-info {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .uptime-percent {
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="text-align: center;">RQLite Cluster Health</h1>
+
+        <div class="cluster-status {{ cluster.cluster_status }}">
+            Cluster Status: {{ cluster.cluster_status }}
+        </div>
+
+        <div class="summary">
+            <strong>{{ cluster.healthy_nodes }}/{{ cluster.total_nodes }}</strong> nodes healthy
+            <br>
+            <small>Last check: {{ cluster.check_time }}</small>
+        </div>
+
+        <div class="nodes-grid">
+            {% for node in cluster.nodes %}
+            <div class="node-card {{ node.status }}">
+                <div class="node-title">
+                    Node: {{ node.url.split('//')[1] }}
+                </div>
+                <div class="node-info">
+                    <strong>Status:</strong> {{ node.status }}<br>
+                    <strong>Response:</strong> {{ node.response_time }}<br>
+                    {% if node.role %}
+                    <span class="role-badge role-{{ node.role }}">{{ node.role.upper() }}</span><br>
+                    {% endif %}
+                    {% if node.error %}
+                    <small style="color: red;">{{ node.error }}</small>
+                    {% endif %}
+
+                    {% if node.uptime %}
+                    <div class="uptime-info">
+                        <div class="uptime-percent">⏱️ Uptime: {{ node.uptime.uptime_percent }}%</div>
+                        <div>Running: {{ node.uptime.running_hours }}h</div>
+                        <div>Checks: {{ node.uptime.successful_checks }}/{{ node.uptime.total_checks }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Auto refresh mỗi 10 giây
+        setTimeout(function () {
+            location.reload();
+        }, 10000);
+    </script>
+</body>
+
+</html>

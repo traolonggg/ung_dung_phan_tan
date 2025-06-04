@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  rqlite1:
+    image: rqlite/rqlite
+    container_name: rqlite1
+    command: >
+      -node-id 1
+      -http-addr 0.0.0.0:4001
+      -raft-addr 0.0.0.0:4002
+    ports:
+      - "4001:4001"  # HTTP API
+      - "4002:4002"  # Raft
+    networks:
+      - rqlite-net
+    volumes:
+      - rqlite1-data:/rqlite/file
+    restart: unless-stopped
+
+  rqlite2:
+    image: rqlite/rqlite
+    container_name: rqlite2
+    command: >
+      -node-id 2
+      -http-addr 0.0.0.0:4001
+      -raft-addr 0.0.0.0:4002
+      -join rqlite1:4002
+    ports:
+      - "4003:4001"  # HTTP API
+      - "4004:4002"  # Raft
+    networks:
+      - rqlite-net
+    volumes:
+      - rqlite2-data:/rqlite/file
+    depends_on:
+      - rqlite1
+    restart: unless-stopped
+
+  rqlite3:
+    image: rqlite/rqlite
+    container_name: rqlite3
+    command: >
+      -node-id 3
+      -http-addr 0.0.0.0:4001
+      -raft-addr 0.0.0.0:4002
+      -join rqlite1:4002
+    ports:
+      - "4005:4001"  # HTTP API
+      - "4006:4002"  # Raft
+    networks:
+      - rqlite-net
+    volumes:
+      - rqlite3-data:/rqlite/file
+    depends_on:
+      - rqlite1
+    restart: unless-stopped
+
+networks:
+  rqlite-net:
+    driver: bridge
+
+volumes:
+  rqlite1-data:
+  rqlite2-data:
+  rqlite3-data:

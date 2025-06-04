@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Node Recovery Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .node-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .healthy {
+            color: #28a745;
+        }
+
+        .unhealthy {
+            color: #dc3545;
+        }
+
+        .event-list {
+            margin-top: 10px;
+        }
+
+        .event-item {
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            margin: 5px 0;
+            background: #f8f9fa;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Node Recovery Monitor</h1>
+
+    {% for addr, node in stats.items() %}
+    <div class="node-card">
+        <h2>Node: {{ addr }}</h2>
+        <div class="stats">
+            <div class="stat-item">
+                Status:
+                <span class="{% if node.is_healthy %}healthy{% else %}unhealthy{% endif %}">
+                    {{ "Healthy" if node.is_healthy else "Unhealthy" }}
+                </span>
+            </div>
+            <div class="stat-item">
+                Total Downtime: {{ "%.2f"|format(node.total_downtime) }}s
+            </div>
+            <div class="stat-item">
+                Last Check: {{ node.last_check }}
+            </div>
+        </div>
+
+        <h3>Recent Events:</h3>
+        <div class="event-list">
+            {% for event in node.recent_events|reverse %}
+            <div class="event-item">
+                <strong>{{ event.timestamp }}</strong>:
+                Node went {{ event.type }}
+                {% if event.type == 'up' %}
+                (downtime: {{ "%.2f"|format(event.downtime) }}s)
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        // Auto-refresh trang sau mỗi 10 giây
+        setTimeout(() => window.location.reload(), 10000);
+    </script>
+</body>
+
+</html>
