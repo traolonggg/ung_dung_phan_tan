@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # RQLite Cluster Monitor
 Ứng dụng monitor cho RQLite cluster, theo dõi sức khỏe và phục hồi của các node.
 ## Tính năng
@@ -36,3 +37,7 @@ python app/node_recovery_monitor.py
 ## API Endpoints
 - GET `/api/cluster` - Lấy thông tin trạng thái cluster
 - GET `/api/stats` - Lấy thống kê về các node
+=======
+# ung_dung_phan_tan
+UDPT
+>>>>>>> 2327c7bcc1b2fea7cbcbc7a3b85ab46501c23bca
